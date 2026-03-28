@@ -2,17 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- create your application title and brand -->
+
   <title>Weather App</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <h1>Weather App</h1>
+  <div class="container">
+    <h1>Weather App</h1>
 
-  <input type="text" id="city" placeholder="Enter city name">
-  <button id="searchBtn">Search</button>
+    <form id="searchForm">
+      <input
+        type="text"
+        id="cityInput"
+        placeholder="Enter city name..."
+        required
+      >
+      <button type="submit">Search</button>
+    </form>
 
-  <div id="weather"></div>
+    <div id="loading" class="hidden">Loading...</div>
+    <div id="error" class="hidden"></div>
 
-  <script src="script.js"></script>
+    <div id="weather" class="hidden">
+      <h2 id="cityName"></h2>
+      <p id="temp"></p>
+      <p id="description"></p>
+      <p id="details"></p>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
 </body>
 </html>
