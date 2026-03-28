@@ -1,93 +1,107 @@
-/**
- * MINIMAL WEATHER APP
- * Demonstrates:
- * - Fetching from a real API
- * - Error handling with try/catch
- * - Updating DOM with data
- * - Loading/error states
- */
-
-// Get DOM elements
-const form = document.getElementById('searchForm');
-const input = document.getElementById('cityInput');
-const loading = document.getElementById('loading');
-const error = document.getElementById('error');
-const weather = document.getElementById('weather');
-
-// API configuration
-// Sign up at https://openweathermap.org/api for free API key
-// Replace with your own key
-const API_KEY = 'demo'; // get your own API key
-const API_URL = 'https://api.openweathermap.org/data/2.5/weather';
-
-// Form submit handler
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const city = input.value.trim();
-
-  if (!city) return;
-
-  await fetchWeather(city);
-  input.value = '';
-});
-
-// Main fetch function
-async function fetchWeather(city) {
-  // Show loading, hide others
-  loading.classList.remove('hidden');
-  error.classList.add('hidden');
-  weather.classList.add('hidden');
-
-  try {
-    // Build URL with query parameters
-    const url = `${API_URL}?q=${city}&units=metric&appid=${API_KEY}`;
-
-    // Fetch from API
-    const response = await fetch(url);
-
-    // Check if request was successful
-    if (!response.ok) {
-      throw new Error(
-        response.status === 404
-          ? 'City not found'
-          : `Error: ${response.status}`
-      );
-    }
-
-    // Parse JSON response
-    const data = await response.json();
-
-    // Update DOM with data
-    displayWeather(data);
-
-  } catch (err) {
-    // Show error message
-    error.textContent = err.message;
-    error.classList.remove('hidden');
-
-  } finally {
-    // Always hide loading
-    loading.classList.add('hidden');
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-// Display weather data in DOM
-function displayWeather(data) {
-  document.getElementById('cityName').textContent =
-    `${data.name}, ${data.sys.country}`;
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
 
-  document.getElementById('temp').textContent =
-    `${Math.round(data.main.temp)}°C`;
+.container {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
 
-  document.getElementById('description').textContent =
-    data.weather[0].description.charAt(0).toUpperCase() +
-    data.weather[0].description.slice(1);
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
 
-  document.getElementById('details').textContent =
-    `Feels like ${Math.round(data.main.feels_like)}°C • ` +
-    `Humidity ${data.main.humidity}% • ` +
-    `Wind ${Math.round(data.wind.speed)} m/s`;
+form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
 
-  weather.classList.remove('hidden');
+input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+button {
+  padding: 12px 24px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #5568d3;
+}
+
+.hidden {
+  display: none;
+}
+
+#loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+#error {
+  background: #ffebee;
+  color: #d32f2f;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+#weather {
+  background: #f0f0f0;
+  padding: 20px;
+  border-radius: 6px;
+  border-left: 4px solid #667eea;
+}
+
+#weather h2 {
+  margin-bottom: 12px;
+  color: #333;
+}
+
+#weather p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+#temp {
+  font-size: 28px !important;
+  font-weight: bold;
+  color: #667eea !important;
 }
