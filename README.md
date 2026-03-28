@@ -1,129 +1,93 @@
-const API_KEY = "YOUR_API_KEY"; // 🔥 PUT YOUR KEY HERE
+/**
+ * MINIMAL WEATHER APP
+ * Demonstrates:
+ * - Fetching from a real API
+ * - Error handling with try/catch
+ * - Updating DOM with data
+ * - Loading/error states
+ */
 
-const form = document.getElementById("searchForm");
-const input = document.getElementById("cityInput");
-const loading = document.getElementById("loading");
-const error = document.getElementById("error");
-const weatherDiv = document.getElementById("weather");
-const forecastDiv = document.getElementById("forecast");
+// Get DOM elements
+const form = document.getElementById('searchForm');
+const input = document.getElementById('cityInput');
+const loading = document.getElementById('loading');
+const error = document.getElementById('error');
+const weather = document.getElementById('weather');
 
-form.addEventListener("submit", async (e) => {
+// API configuration
+// Sign up at https://openweathermap.org/api for free API key
+// Replace with your own key
+const API_KEY = 'demo'; // get your own API key
+const API_URL = 'https://api.openweathermap.org/data/2.5/weather';
+
+// Form submit handler
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const city = input.value.trim();
+
   if (!city) return;
 
-  try {
-    showLoading();
-
-    const coords = await getCoordinates(city);
-    const weather = await getCurrentWeather(city);
-    const forecast = await getForecast(coords.lat, coords.lon);
-
-    displayWeather(weather);
-    displayForecast(forecast);
-
-  } catch (err) {
-    showError(err.message);
-  } finally {
-    hideLoading();
-  }
+  await fetchWeather(city);
+  input.value = '';
 });
 
+// Main fetch function
+async function fetchWeather(city) {
+  // Show loading, hide others
+  loading.classList.remove('hidden');
+  error.classList.add('hidden');
+  weather.classList.add('hidden');
 
-// 📍 GET COORDINATES
-async function getCoordinates(city) {
-  const res = await fetch(
-    `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${API_KEY}`
-  );
+  try {
+    // Build URL with query parameters
+    const url = `${API_URL}?q=${city}&units=metric&appid=${API_KEY}`;
 
-  const data = await res.json();
+    // Fetch from API
+    const response = await fetch(url);
 
-  if (!data.length) throw new Error("City not found");
+    // Check if request was successful
+    if (!response.ok) {
+      throw new Error(
+        response.status === 404
+          ? 'City not found'
+          : `Error: ${response.status}`
+      );
+    }
 
-  return data[0];
+    // Parse JSON response
+    const data = await response.json();
+
+    // Update DOM with data
+    displayWeather(data);
+
+  } catch (err) {
+    // Show error message
+    error.textContent = err.message;
+    error.classList.remove('hidden');
+
+  } finally {
+    // Always hide loading
+    loading.classList.add('hidden');
+  }
 }
 
-
-// 🌡️ CURRENT WEATHER
-async function getCurrentWeather(city) {
-  const res = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`
-  );
-
-  if (!res.ok) throw new Error("Weather not found");
-
-  return await res.json();
-}
-
-
-// 📅 FORECAST (8 DAYS)
-async function getForecast(lat, lon) {
-  const res = await fetch(
-    `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&units=metric&appid=${API_KEY}`
-  );
-
-  return await res.json();
-}
-
-
-// 🎯 DISPLAY CURRENT WEATHER
+// Display weather data in DOM
 function displayWeather(data) {
-  document.getElementById("cityName").textContent =
+  document.getElementById('cityName').textContent =
     `${data.name}, ${data.sys.country}`;
 
-  document.getElementById("temp").textContent =
+  document.getElementById('temp').textContent =
     `${Math.round(data.main.temp)}°C`;
 
-  document.getElementById("description").textContent =
-    data.weather[0].description;
+  document.getElementById('description').textContent =
+    data.weather[0].description.charAt(0).toUpperCase() +
+    data.weather[0].description.slice(1);
 
-  document.getElementById("details").textContent =
-    `Humidity: ${data.main.humidity}% • Wind: ${data.wind.speed} m/s`;
+  document.getElementById('details').textContent =
+    `Feels like ${Math.round(data.main.feels_like)}°C • ` +
+    `Humidity ${data.main.humidity}% • ` +
+    `Wind ${Math.round(data.wind.speed)} m/s`;
 
-  weatherDiv.classList.remove("hidden");
-}
-
-
-// 📊 DISPLAY FORECAST
-function displayForecast(data) {
-  forecastDiv.classList.remove("hidden");
-
-  const days = data.daily.slice(0, 8);
-
-  forecastDiv.innerHTML = "<h3>8-Day Forecast</h3><div class='forecast-grid'></div>";
-
-  const grid = forecastDiv.querySelector(".forecast-grid");
-
-  days.forEach(day => {
-    const date = new Date(day.dt * 1000);
-    const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
-
-    const card = document.createElement("div");
-    card.className = "forecast-card";
-
-    card.innerHTML = `
-      <strong>${dayName}</strong>
-      <p>${Math.round(day.temp.day)}°C</p>
-      <p>${day.weather[0].main}</p>
-    `;
-
-    grid.appendChild(card);
-  });
-}
-
-
-// ⏳ UI STATES
-function showLoading() {
-  loading.classList.remove("hidden");
-  error.classList.add("hidden");
-}
-
-function hideLoading() {
-  loading.classList.add("hidden");
-}
-
-function showError(message) {
-  error.textContent = message;
-  error.classList.remove("hidden");
+  weather.classList.remove('hidden');
 }
