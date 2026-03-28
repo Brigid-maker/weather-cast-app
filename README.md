@@ -1,107 +1,41 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
 
-body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
+  <div class="container">
+    <h1>🌦️ Weather App</h1>
 
-.container {
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  max-width: 500px;
-  width: 100%;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-}
+    <form id="searchForm">
+      <input
+        type="text"
+        id="cityInput"
+        placeholder="Enter city name..."
+        required
+      >
+      <button type="submit">Search</button>
+    </form>
 
-h1 {
-  text-align: center;
-  margin-bottom: 30px;
-  color: #333;
-}
+    <div id="loading" class="hidden">Loading...</div>
+    <div id="error" class="hidden"></div>
 
-form {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
+    <!-- CURRENT WEATHER -->
+    <div id="weather" class="hidden">
+      <h2 id="cityName"></h2>
+      <p id="temp"></p>
+      <p id="description"></p>
+      <p id="details"></p>
+    </div>
 
-input {
-  flex: 1;
-  padding: 12px 16px;
-  border: 2px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.3s;
-}
+    <!-- FORECAST -->
+    <div id="forecast" class="hidden"></div>
+  </div>
 
-input:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-button {
-  padding: 12px 24px;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.3s;
-}
-
-button:hover {
-  background: #5568d3;
-}
-
-.hidden {
-  display: none;
-}
-
-#loading {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-}
-
-#error {
-  background: #ffebee;
-  color: #d32f2f;
-  padding: 15px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-}
-
-#weather {
-  background: #f0f0f0;
-  padding: 20px;
-  border-radius: 6px;
-  border-left: 4px solid #667eea;
-}
-
-#weather h2 {
-  margin-bottom: 12px;
-  color: #333;
-}
-
-#weather p {
-  margin: 8px 0;
-  color: #666;
-  font-size: 14px;
-}
-
-#temp {
-  font-size: 28px !important;
-  font-weight: bold;
-  color: #667eea !important;
-}
+  <script src="main.js"></script>
+</body>
+</html>
