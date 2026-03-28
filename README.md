@@ -1,89 +1,129 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+const API_KEY = "YOUR_API_KEY"; // 🔥 PUT YOUR KEY HERE
+
+const form = document.getElementById("searchForm");
+const input = document.getElementById("cityInput");
+const loading = document.getElementById("loading");
+const error = document.getElementById("error");
+const weatherDiv = document.getElementById("weather");
+const forecastDiv = document.getElementById("forecast");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const city = input.value.trim();
+  if (!city) return;
+
+  try {
+    showLoading();
+
+    const coords = await getCoordinates(city);
+    const weather = await getCurrentWeather(city);
+    const forecast = await getForecast(coords.lat, coords.lon);
+
+    displayWeather(weather);
+    displayForecast(forecast);
+
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    hideLoading();
+  }
+});
+
+
+// 📍 GET COORDINATES
+async function getCoordinates(city) {
+  const res = await fetch(
+    `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${API_KEY}`
+  );
+
+  const data = await res.json();
+
+  if (!data.length) throw new Error("City not found");
+
+  return data[0];
 }
 
-body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+
+// 🌡️ CURRENT WEATHER
+async function getCurrentWeather(city) {
+  const res = await fetch(
+    `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`
+  );
+
+  if (!res.ok) throw new Error("Weather not found");
+
+  return await res.json();
 }
 
-.container {
-  background: white;
-  border-radius: 15px;
-  padding: 30px;
-  max-width: 700px;
-  width: 100%;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+
+// 📅 FORECAST (8 DAYS)
+async function getForecast(lat, lon) {
+  const res = await fetch(
+    `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&units=metric&appid=${API_KEY}`
+  );
+
+  return await res.json();
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
+
+// 🎯 DISPLAY CURRENT WEATHER
+function displayWeather(data) {
+  document.getElementById("cityName").textContent =
+    `${data.name}, ${data.sys.country}`;
+
+  document.getElementById("temp").textContent =
+    `${Math.round(data.main.temp)}°C`;
+
+  document.getElementById("description").textContent =
+    data.weather[0].description;
+
+  document.getElementById("details").textContent =
+    `Humidity: ${data.main.humidity}% • Wind: ${data.wind.speed} m/s`;
+
+  weatherDiv.classList.remove("hidden");
 }
 
-form {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+
+// 📊 DISPLAY FORECAST
+function displayForecast(data) {
+  forecastDiv.classList.remove("hidden");
+
+  const days = data.daily.slice(0, 8);
+
+  forecastDiv.innerHTML = "<h3>8-Day Forecast</h3><div class='forecast-grid'></div>";
+
+  const grid = forecastDiv.querySelector(".forecast-grid");
+
+  days.forEach(day => {
+    const date = new Date(day.dt * 1000);
+    const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
+
+    const card = document.createElement("div");
+    card.className = "forecast-card";
+
+    card.innerHTML = `
+      <strong>${dayName}</strong>
+      <p>${Math.round(day.temp.day)}°C</p>
+      <p>${day.weather[0].main}</p>
+    `;
+
+    grid.appendChild(card);
+  });
 }
 
-input {
-  flex: 1;
-  padding: 12px;
-  border: 2px solid #ddd;
-  border-radius: 6px;
+
+// ⏳ UI STATES
+function showLoading() {
+  loading.classList.remove("hidden");
+  error.classList.add("hidden");
 }
 
-button {
-  padding: 12px 20px;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+function hideLoading() {
+  loading.classList.add("hidden");
 }
 
-button:hover {
-  background: #5568d3;
-}
-
-.hidden {
-  display: none;
-}
-
-#weather {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-#temp {
-  font-size: 32px;
-  font-weight: bold;
-  color: #667eea;
-}
-
-/* FORECAST GRID */
-#forecast {
-  margin-top: 20px;
-}
-
-.forecast-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 10px;
-}
-
-.forecast-card {
-  background: #f4f4f4;
-  padding: 10px;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 14px;
+function showError(message) {
+  error.textContent = message;
+  error.classList.remove("hidden");
 }
