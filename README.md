@@ -1,39 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- create your application title and brand -->
+/**
+ * MINIMAL WEATHER APP
+ * Demonstrates:
+ * - Fetching from a real API
+ * - Error handling with try/catch
+ * - Updating DOM with data
+ * - Loading/error states
+ */
 
-  <title>Weather App</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+// Get DOM elements
+const form = document.getElementById('searchForm');
+const input = document.getElementById('cityInput');
+const loading = document.getElementById('loading');
+const error = document.getElementById('error');
+const weather = document.getElementById('weather');
 
-  <div class="container">
-    <h1>Weather App</h1>
+// API configuration
+// Sign up at https://openweathermap.org/api for free API key
+// Replace with your own key
+const API_KEY = 'demo'; // get your own API key
+const API_URL = 'https://api.openweathermap.org/data/2.5/weather';
 
-    <form id="searchForm">
-      <input
-        type="text"
-        id="cityInput"
-        placeholder="Enter city name..."
-        required
-      >
-      <button type="submit">Search</button>
-    </form>
+// Form submit handler
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-    <div id="loading" class="hidden">Loading...</div>
-    <div id="error" class="hidden"></div>
+  const city = input.value.trim();
 
-    <div id="weather" class="hidden">
-      <h2 id="cityName"></h2>
-      <p id="temp"></p>
-      <p id="description"></p>
-      <p id="details"></p>
-    </div>
-  </div>
+  if (!city) return;
 
-  <script src="main.js"></script>
-</body>
-</html>
+  await fetchWeather(city);
+  input.value = '';
+});
+
+// Main fetch function
+async function fetchWeather(city) {
+  // Show loading, hide others
+  loading.classList.remove('hidden');
+  error.classList.add('hidden');
+  weather.classList.add('hidden');
+
+  try {
+    // Build URL with query parameters
+    const url = `${API_URL}?q=${city}&units=metric&appid=${API_KEY}`;
+
+    // Fetch from API
+    const response = await fetch(url);
+
+    // Check if request was successful
+    if (!response.ok) {
+      throw new Error(
+        response.status === 404
+          ? 'City not found'
+          : `Error: ${response.status}`
+      );
+    }
+
+    // Parse JSON response
+    const data = await response.json();
+
+    // Update DOM with data
+    displayWeather(data);
+
+  } catch (err) {
+    // Show error message
+    error.textContent = err.message;
+    error.classList.remove('hidden');
+
+  } finally {
+    // Always hide loading
+    loading.classList.add('hidden');
+  }
+}
+
+// Display weather data in DOM
+function displayWeather(data) {
+  document.getElementById('cityName').textContent =
+    `${data.name}, ${data.sys.country}`;
+
+  document.getElementById('temp').textContent =
+    `${Math.round(data.main.temp)}°C`;
+
+  document.getElementById('description').textContent =
+    data.weather[0].description.charAt(0).toUpperCase() +
+    data.weather[0].description.slice(1);
+
+  document.getElementById('details').textContent =
+    `Feels like ${Math.round(data.main.feels_like)}°C • ` +
+    `Humidity ${data.main.humidity}% • ` +
+    `Wind ${Math.round(data.wind.speed)} m/s`;
+
+  weather.classList.remove('hidden');
+}
