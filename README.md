@@ -1,41 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weather App</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  <div class="container">
-    <h1>🌦️ Weather App</h1>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
 
-    <form id="searchForm">
-      <input
-        type="text"
-        id="cityInput"
-        placeholder="Enter city name..."
-        required
-      >
-      <button type="submit">Search</button>
-    </form>
+.container {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
 
-    <div id="loading" class="hidden">Loading...</div>
-    <div id="error" class="hidden"></div>
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
 
-    <!-- CURRENT WEATHER -->
-    <div id="weather" class="hidden">
-      <h2 id="cityName"></h2>
-      <p id="temp"></p>
-      <p id="description"></p>
-      <p id="details"></p>
-    </div>
+form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
 
-    <!-- FORECAST -->
-    <div id="forecast" class="hidden"></div>
-  </div>
+input {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+}
 
-  <script src="main.js"></script>
-</body>
-</html>
+button {
+  padding: 12px 20px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #5568d3;
+}
+
+.hidden {
+  display: none;
+}
+
+#weather {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#temp {
+  font-size: 32px;
+  font-weight: bold;
+  color: #667eea;
+}
+
+/* FORECAST GRID */
+#forecast {
+  margin-top: 20px;
+}
+
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.forecast-card {
+  background: #f4f4f4;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+}
